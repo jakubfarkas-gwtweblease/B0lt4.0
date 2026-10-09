@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const STORAGE_KEY = "delivery-earnings-v1";
-const APP_VERSION = "2026-10-09.5";
+const APP_VERSION = "2026-10-10.1";
 
 /* ---------- services · farby z fotky + gradienty (čierny text čitateľný) ---------- */
 const SERVICES = {
@@ -121,6 +121,7 @@ const Icon = ({ name, size = 20, stroke = 2, fill = false }) => {
     trophy: <React.Fragment><path d="M7 4h10v4a5 5 0 0 1-10 0z" /><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" /><path d="M12 13v4M8.5 20.5h7M10 17.5h4" /></React.Fragment>,
     delivered: <React.Fragment><circle cx="12" cy="12" r="8.5" /><path d="M8.5 12l2.4 2.4L15.5 9.5" /></React.Fragment>,
     chevrondown: <path d="M5 9l7 7 7-7" />,
+    settings: <React.Fragment><path d="M12 2.7l1.5.1.8 2.2 2 .8 2.1-.9 1.9 1.9-.9 2.1.8 2 2.2.8v2.6l-2.2.8-.8 2 .9 2.1-1.9 1.9-2.1-.9-2 .8-.8 2.2h-2.6l-.8-2.2-2-.8-2.1.9-1.9-1.9.9-2.1-.8-2-2.2-.8v-2.6l2.2-.8.8-2-.9-2.1 1.9-1.9 2.1.9 2-.8.8-2.2z" /><circle cx="12" cy="12" r="3" /></React.Fragment>,
     chevronup: <path d="M5 15l7-7 7 7" />,
     warn: <React.Fragment><path d="M12 3.2 2.2 20.5h19.6z" /><path d="M12 9.5v4.3M12 17.2h.01" /></React.Fragment>,
   };
@@ -620,7 +621,25 @@ const App = () => {
   const [toast, showToast] = useToast();
   const [upState, setUpState] = useState("idle");
   const [upLatest, setUpLatest] = useState("");
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const toolsRef = useRef(null);
   const fileRef = useRef(null);
+
+  useEffect(() => {
+    if (!toolsOpen) return;
+    const closeOnOutside = (event) => {
+      if (toolsRef.current && !toolsRef.current.contains(event.target)) setToolsOpen(false);
+    };
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setToolsOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [toolsOpen]);
 
   const persist = (next) => { setData(next); if (!saveData(next)) showToast("Uloženie zlyhalo"); };
 
@@ -887,29 +906,35 @@ const App = () => {
       <div style={{ position: "fixed", inset: 0, zIndex: -1, background: "radial-gradient(120% 40% at 100% 0%, rgba(254,128,8,0.08), transparent 60%), radial-gradient(90% 32% at 0% 0%, rgba(91,161,203,0.09), transparent 60%), linear-gradient(180deg, #F8FBFF 0%, #F4F8FD 55%, #FFFFFF 100%)" }} />
 
       <div style={{ padding: "max(20px, env(safe-area-inset-top)) 16px 164px", maxWidth: 620, margin: "0 auto" }}>
-        {/* top actions */}
-        <div className="rise" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 16 }}>
-          <button onClick={sendDayReport} className="press glow-breathe" aria-label="Denný report" style={{ minHeight: 52, borderRadius: 16, background: "linear-gradient(135deg, #07111A 0%, #142334 120%)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", boxShadow: "0 14px 26px rgba(7,17,26,0.16)", whiteSpace: "nowrap" }}>
-            <Icon name="share" size={16} />
-            <span style={{ fontSize: 12.5, fontWeight: 850, fontFamily: SANS, letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis" }}>Report</span>
+        {/* Compact top actions: full labels, single row, CSV inside Settings */}
+        <div ref={toolsRef} className="rise" style={{ position: "relative", zIndex: toolsOpen ? 35 : 2, display: "grid", gridTemplateColumns: "minmax(0, 1.22fr) minmax(0, .89fr) 48px", gap: 8, marginBottom: 17, width: "100%" }}>
+          <button onClick={sendDayReport} className="press glow-breathe" aria-label="Zdieľať report dňa" style={{ minWidth: 0, height: 49, borderRadius: 15, background: "linear-gradient(125deg, #07111A 0%, #172736 100%)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", boxShadow: "0 9px 22px rgba(7,17,26,.15)", whiteSpace: "nowrap" }}>
+            <span style={{ flexShrink: 0 }}><Icon name="share" size={17} /></span>
+            <span style={{ fontSize: 13.5, fontWeight: 850, letterSpacing: "-.01em", fontFamily: SANS, whiteSpace: "nowrap" }}>Report deň</span>
           </button>
 
-          <button onClick={upState === "available" ? doUpdate : checkUpdate} className="press" aria-label="Aktualizácie" style={{ minHeight: 52, borderRadius: 16, background: "rgba(255,255,255,0.92)", border: `1px solid ${P.line}`, color: P.ink, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", boxShadow: "0 10px 20px rgba(15,23,34,0.06)", whiteSpace: "nowrap" }}>
-            <Icon name="download" size={16} />
-            <span style={{ fontSize: 12.5, fontWeight: 850, fontFamily: SANS, overflow: "hidden", textOverflow: "ellipsis" }}>{upState === "available" ? "Update" : upState === "checking" ? "..." : "Update"}</span>
+          <button onClick={upState === "available" ? doUpdate : checkUpdate} className="press" aria-label="Skontrolovať aktualizácie" style={{ minWidth: 0, height: 49, borderRadius: 15, background: "rgba(230,237,244,.52)", border: "1px solid rgba(65,85,103,.11)", color: "#445466", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "0 8px", boxShadow: "none", whiteSpace: "nowrap" }}>
+            <span style={{ flexShrink: 0 }}><Icon name="download" size={16} /></span>
+            <span style={{ fontSize: 13.5, fontWeight: 750, fontFamily: SANS, whiteSpace: "nowrap" }}>{upState === "checking" ? "…" : "Update"}</span>
           </button>
 
-          <button onClick={() => fileRef.current && fileRef.current.click()} className="press" aria-label="Import CSV" style={{ minHeight: 52, borderRadius: 16, background: "rgba(255,255,255,0.9)", border: `1px solid ${P.line}`, color: P.ink, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", boxShadow: "0 10px 20px rgba(15,23,34,0.06)", whiteSpace: "nowrap" }}>
-            <Icon name="upload" size={16} />
-            <span style={{ fontSize: 12.5, fontWeight: 850, fontFamily: SANS, overflow: "hidden", textOverflow: "ellipsis" }}>Import</span>
-          </button>
-
-          <button onClick={exportCSV} className="press" aria-label="Export CSV" style={{ minHeight: 52, borderRadius: 16, background: "rgba(255,255,255,0.9)", border: `1px solid ${P.line}`, color: P.ink, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px", boxShadow: "0 10px 20px rgba(15,23,34,0.06)", whiteSpace: "nowrap" }}>
-            <Icon name="download" size={16} />
-            <span style={{ fontSize: 12.5, fontWeight: 850, fontFamily: SANS, overflow: "hidden", textOverflow: "ellipsis" }}>Export</span>
+          <button onClick={() => setToolsOpen((current) => !current)} className="press" aria-label="Nastavenia a CSV" aria-haspopup="menu" aria-expanded={toolsOpen} style={{ width: 48, height: 49, borderRadius: 15, background: toolsOpen ? "#E4ECF3" : "rgba(230,237,244,.52)", border: "1px solid rgba(65,85,103,.11)", color: "#445466", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "none" }}>
+            <span style={{ display: "inline-flex", transition: "transform 250ms cubic-bezier(.2,.85,.25,1)", transform: toolsOpen ? "rotate(44deg)" : "rotate(0deg)" }}><Icon name="settings" size={21} stroke={1.8} /></span>
           </button>
 
           <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={importCSV} style={{ display: "none" }} />
+          {toolsOpen && (
+            <div role="menu" aria-label="CSV nastavenia" className="pop" style={{ position: "absolute", right: 0, top: "calc(100% + 9px)", width: 224, maxWidth: "calc(100vw - 32px)", padding: 7, background: "#FFFFFF", border: "1px solid rgba(7,17,26,.11)", boxShadow: "0 20px 45px rgba(7,17,26,.17)", borderRadius: 17, zIndex: 4 }}>
+              <div style={{ padding: "7px 11px 8px", fontSize: 11, fontWeight: 850, letterSpacing: ".11em", color: "#758291", fontFamily: SANS, textTransform: "uppercase" }}>CSV súbory</div>
+              <button role="menuitem" onClick={() => { setToolsOpen(false); if (fileRef.current) fileRef.current.click(); }} className="press" style={{ width: "100%", minHeight: 45, padding: "0 12px", borderRadius: 11, display: "flex", alignItems: "center", gap: 11, fontSize: 14, fontWeight: 750, color: "#142332", textAlign: "left", fontFamily: SANS }}>
+                <Icon name="upload" size={18} /> Import CSV
+              </button>
+              <div style={{ height: 1, margin: "2px 10px", background: "rgba(7,17,26,.07)" }} />
+              <button role="menuitem" onClick={() => { setToolsOpen(false); exportCSV(); }} className="press" style={{ width: "100%", minHeight: 45, padding: "0 12px", borderRadius: 11, display: "flex", alignItems: "center", gap: 11, fontSize: 14, fontWeight: 750, color: "#142332", textAlign: "left", fontFamily: SANS }}>
+                <Icon name="download" size={18} /> Export CSV
+              </button>
+            </div>
+          )}
         </div>
 
         {/* TODAY hero — always visible */}
