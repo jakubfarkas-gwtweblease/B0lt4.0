@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const STORAGE_KEY = "delivery-earnings-v1";
-const APP_VERSION = "2026-10-10.4";
+const APP_VERSION = "2026-10-10.5";
 
 /* ---------- services · farby z fotky + gradienty (čierny text čitateľný) ---------- */
 const SERVICES = {
@@ -1041,32 +1041,32 @@ const App = () => {
       </div>
 
       {/* Variant 2 · plávajúci tmavý dock so silným, mäkkým tieňom */}
-      <div aria-hidden="true" style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 138, zIndex: 20, pointerEvents: "none",
+      <div aria-hidden="true" style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 126, zIndex: 20, pointerEvents: "none",
         background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.42) 54%, rgba(248,251,255,0.84) 100%)" }} />
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(18px, env(safe-area-inset-bottom))", zIndex: 21,
+      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(16px, env(safe-area-inset-bottom))", zIndex: 21,
         display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
-        <nav aria-label="Pridať objednávku" style={{ width: "100%", maxWidth: 362, minWidth: 0, pointerEvents: "auto" }}>
-          <div style={{ display: "flex", gap: 9, padding: 10, borderRadius: 32,
+        <nav aria-label="Pridať objednávku" style={{ width: "100%", maxWidth: 346, minWidth: 0, pointerEvents: "auto" }}>
+          <div style={{ display: "flex", gap: 8, padding: 8, borderRadius: 29,
             background: "linear-gradient(152deg, #263649 0%, #142234 36%, #0C1828 100%)",
-            border: "1px solid rgba(143,172,194,0.5)",
-            boxShadow: "0 20px 38px rgba(7,19,34,0.40), 0 7px 15px rgba(7,19,34,0.22), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(0,0,0,0.3)" }}>
+            border: "1px solid rgba(143,172,194,0.36)",
+            boxShadow: "0 16px 30px rgba(7,19,34,0.34), 0 6px 13px rgba(7,19,34,0.18), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.26)" }}>
             {ORDER.map((k) => {
               const s = SERVICES[k];
               const c = DOCK_PALETTE[k];
               return (
                 <button key={k} onClick={() => setKeypad({ kind: "order", service: k })} className="press"
                   aria-label={`Pridať ${s.name}`} style={{ position: "relative", isolation: "isolate", flex: "1 1 0", minWidth: 0,
-                    height: 71, borderRadius: 24, background: c.grad, color: "#09131C",
+                    height: 64, borderRadius: 21, background: c.grad, color: "#09131C",
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                    border: `1.5px solid ${c.edge}`,
-                    boxShadow: `0 0 0 1px rgba(255,255,255,0.10), 0 4px 16px ${c.light}, 0 7px 12px rgba(0,0,0,0.22), inset 0 2px 1px rgba(255,255,255,0.55), inset 0 -2px 3px rgba(0,0,0,0.05)` }}>
-                  <span aria-hidden="true" style={{ pointerEvents: "none", position: "absolute", top: 3, left: 9, right: 9,
-                    height: 24, borderRadius: 18,
+                    border: `1px solid ${c.edge}`,
+                    boxShadow: `0 0 0 1px rgba(255,255,255,0.08), 0 3px 12px ${c.light}, 0 6px 10px rgba(0,0,0,0.18), inset 0 2px 1px rgba(255,255,255,0.52), inset 0 -2px 3px rgba(0,0,0,0.04)` }}>
+                  <span aria-hidden="true" style={{ pointerEvents: "none", position: "absolute", top: 3, left: 8, right: 8,
+                    height: 20, borderRadius: 16,
                     background: "linear-gradient(180deg, rgba(255,255,255,0.29), rgba(255,255,255,0))" }} />
                   <span style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon name={svcIcon[k]} size={24} stroke={2.4} />
+                    <Icon name={svcIcon[k]} size={22} stroke={2.35} />
                   </span>
-                  <span style={{ position: "relative", fontSize: 14, lineHeight: 1.05, fontWeight: 900,
+                  <span style={{ position: "relative", fontSize: 13.5, lineHeight: 1.04, fontWeight: 900,
                     fontFamily: SANS, letterSpacing: "-0.015em", textShadow: "0 1px 0 rgba(255,255,255,0.18)" }}>{s.name}</span>
                 </button>
               );
