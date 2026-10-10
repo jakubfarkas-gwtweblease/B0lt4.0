@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const STORAGE_KEY = "delivery-earnings-v1";
-const APP_VERSION = "2026-10-10.1";
+const APP_VERSION = "2026-10-10.3";
 
 /* ---------- services · farby z fotky + gradienty (čierny text čitateľný) ---------- */
 const SERVICES = {
@@ -942,15 +942,16 @@ const App = () => {
           background: "linear-gradient(135deg, #0F1722 0%, #162334 52%, #0E1520 130%)", color: "#fff", boxShadow: "0 18px 42px rgba(8,14,20,0.24)" }}>
           <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(65% 60% at 0% 0%, rgba(91,161,203,0.18), transparent 55%), radial-gradient(55% 55% at 100% 0%, rgba(254,128,8,0.14), transparent 56%)" }} />
           <div className="shimmer" style={{ position: "absolute", inset: 0, opacity: 0.75, pointerEvents: "none" }} />
-          <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
               <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: "rgba(255,255,255,0.68)", fontFamily: SANS, fontWeight: 800 }}>Dnes máš</div>
-              <div style={{ fontSize: 46, fontWeight: 900, fontFamily: MONO, letterSpacing: "-0.04em", marginTop: 3, lineHeight: 0.98, textShadow: "0 2px 12px rgba(0,0,0,0.18)" }}>{eur(todayDelivered)}</div>
-              <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.68)", fontFamily: SANS, fontWeight: 650, marginTop: 6 }}>živý prehľad dňa</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <button onClick={() => shareText("Zatiaľ nič", showToast)} className="press" aria-label="Zdieľať text Zatiaľ nič" style={{ height: 42, minWidth: 56, padding: "0 12px", borderRadius: 13, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13.5, fontWeight: 800, fontFamily: SANS, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.11)" }}>Nič</button>
+                <button onClick={shareTotal} className="press" aria-label="Zdieľať dnešok" style={{ width: 42, height: 42, borderRadius: 13, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.14)" }}><Icon name="share" size={18} /></button>
+              </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <button onClick={shareTotal} className="press" aria-label="Zdieľať dnešok" style={{ width: 42, height: 42, borderRadius: 13, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.14)" }}><Icon name="share" size={18} /></button>
-            </div>
+            <div style={{ fontSize: 46, fontWeight: 900, fontFamily: MONO, letterSpacing: "-0.04em", marginTop: 3, lineHeight: 0.98, textShadow: "0 2px 12px rgba(0,0,0,0.18)", overflowWrap: "anywhere" }}>{eur(todayDelivered)}</div>
+            <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.68)", fontFamily: SANS, fontWeight: 650, marginTop: 6 }}>živý prehľad dňa</div>
           </div>
           <div style={{ position: "relative", marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
             {undeliveredN > 0 ? (
@@ -1021,24 +1022,32 @@ const App = () => {
         </div>
       </div>
 
-      {/* floating dock */}
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 142, zIndex: 20, pointerEvents: "none",
-        background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.86) 50%, #F8FBFF 100%)" }} />
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(16px, env(safe-area-inset-bottom))", zIndex: 21, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "0 16px" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 38, height: 5, borderRadius: 999, background: "rgba(9,16,24,0.12)" }} />
-          <div style={{ display: "flex", gap: 10, padding: 9, borderRadius: 28, background: "rgba(255,255,255,0.84)", border: `1px solid ${P.line}`, backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)", boxShadow: "0 18px 42px rgba(15,23,34,0.14), inset 0 1px 0 rgba(255,255,255,0.95)" }}>
-            {ORDER.map((k) => {
-              const s = SERVICES[k];
-              return (
-                <button key={k} onClick={() => setKeypad({ kind: "order", service: k })} className="press" aria-label={`Pridať ${s.name}`}
-                  style={{ width: 94, height: 64, borderRadius: 20, background: s.grad, color: INK, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2,
-                    boxShadow: `0 10px 22px ${s.glow}, inset 0 1px 0 rgba(255,255,255,0.48)` }}>
-                  <Icon name={svcIcon[k]} size={22} />
-                  <span style={{ fontSize: 12, fontWeight: 800, fontFamily: SANS }}>{s.name}</span>
-                </button>
-              );
-            })}
+      {/* floating dock · distinct continuous frame with platform-tinted rim */}
+      <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 156, zIndex: 20, pointerEvents: "none",
+        background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.91) 58%, #F8FBFF 100%)" }} />
+      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(16px, env(safe-area-inset-bottom))", zIndex: 21, display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
+        <div style={{ width: "100%", maxWidth: 356, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, pointerEvents: "auto" }}>
+          {/* subtle handle above dock */}
+          <div style={{ width: 34, height: 4, borderRadius: 999, background: "rgba(7,17,26,0.15)" }} />
+          {/* 4px dark perimeter band, matching the day's dark total panel */}
+          <div style={{ width: "100%", padding: 4, borderRadius: 33,
+            background: "linear-gradient(135deg, #0F1722 0%, #162334 52%, #0E1520 130%)",
+            boxShadow: "0 0 0 1px rgba(7,17,26,0.38), 0 14px 34px rgba(7,17,26,0.23), 0 3px 9px rgba(7,17,26,0.12), inset 0 1px 0 rgba(255,255,255,0.14)" }}>
+            <div style={{ display: "flex", gap: 8, padding: 7, borderRadius: 30,
+              background: "linear-gradient(155deg, rgba(255,255,255,0.99), rgba(240,245,249,0.99))",
+              border: "1px solid rgba(255,255,255,0.92)", boxShadow: "inset 0 1px 1px rgba(255,255,255,1), inset 0 -2px 6px rgba(7,17,26,0.06)" }}>
+              {ORDER.map((k) => {
+                const s = SERVICES[k];
+                return (
+                  <button key={k} onClick={() => setKeypad({ kind: "order", service: k })} className="press" aria-label={`Pridať ${s.name}`}
+                    style={{ flex: "1 1 0", width: 0, minWidth: 0, height: 68, borderRadius: 21, background: s.grad, color: INK, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+                      border: "1px solid rgba(255,255,255,0.55)", boxShadow: `0 7px 16px ${s.glow}, inset 0 1px 0 rgba(255,255,255,0.60), inset 0 -2px 0 rgba(0,0,0,0.045)` }}>
+                    <Icon name={svcIcon[k]} size={24} />
+                    <span style={{ fontSize: 13, fontWeight: 900, fontFamily: SANS, letterSpacing: "-0.01em" }}>{s.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
