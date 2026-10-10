@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const STORAGE_KEY = "delivery-earnings-v1";
-const APP_VERSION = "2026-10-10.3";
+const APP_VERSION = "2026-10-10.4";
 
 /* ---------- services · farby z fotky + gradienty (čierny text čitateľný) ---------- */
 const SERVICES = {
@@ -14,6 +14,24 @@ const SERVICES = {
   bistro: { key: "bistro", name: "Bistro", solid: "#FE8008",
             grad: "linear-gradient(135deg, #FFF0DD 0%, #FFC774 36%, #FF9A2E 70%, #FE8008 120%)",
             chip: "#7A3B00", glow: "rgba(254,128,8,0.34)", soft: "rgba(254,128,8,0.18)" },
+};
+/* Plávajúci dock – variant č. 2. Farby platforiem ostávajú zelená/modrá/oranžová. */
+const DOCK_PALETTE = {
+  bolt: {
+    grad: "linear-gradient(140deg, #9DF9CD 0%, #59E8A6 37%, #19C482 100%)",
+    light: "rgba(73,242,160,0.44)",
+    edge: "rgba(199,255,226,0.94)",
+  },
+  wolt: {
+    grad: "linear-gradient(140deg, #B4EDFF 0%, #72DAFA 40%, #27B9E8 100%)",
+    light: "rgba(61,200,255,0.43)",
+    edge: "rgba(213,247,255,0.95)",
+  },
+  bistro: {
+    grad: "linear-gradient(140deg, #FFE7B8 0%, #FFCA77 37%, #FF9326 100%)",
+    light: "rgba(255,154,59,0.41)",
+    edge: "rgba(255,241,203,0.95)",
+  },
 };
 const ORDER = ["bolt", "wolt", "bistro"];
 const INK = "#0C0C0C";        // čierne písmená na kartách
@@ -1022,34 +1040,39 @@ const App = () => {
         </div>
       </div>
 
-      {/* floating dock · distinct continuous frame with platform-tinted rim */}
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 156, zIndex: 20, pointerEvents: "none",
-        background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.91) 58%, #F8FBFF 100%)" }} />
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(16px, env(safe-area-inset-bottom))", zIndex: 21, display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
-        <div style={{ width: "100%", maxWidth: 356, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, pointerEvents: "auto" }}>
-          {/* subtle handle above dock */}
-          <div style={{ width: 34, height: 4, borderRadius: 999, background: "rgba(7,17,26,0.15)" }} />
-          {/* 4px dark perimeter band, matching the day's dark total panel */}
-          <div style={{ width: "100%", padding: 4, borderRadius: 33,
-            background: "linear-gradient(135deg, #0F1722 0%, #162334 52%, #0E1520 130%)",
-            boxShadow: "0 0 0 1px rgba(7,17,26,0.38), 0 14px 34px rgba(7,17,26,0.23), 0 3px 9px rgba(7,17,26,0.12), inset 0 1px 0 rgba(255,255,255,0.14)" }}>
-            <div style={{ display: "flex", gap: 8, padding: 7, borderRadius: 30,
-              background: "linear-gradient(155deg, rgba(255,255,255,0.99), rgba(240,245,249,0.99))",
-              border: "1px solid rgba(255,255,255,0.92)", boxShadow: "inset 0 1px 1px rgba(255,255,255,1), inset 0 -2px 6px rgba(7,17,26,0.06)" }}>
-              {ORDER.map((k) => {
-                const s = SERVICES[k];
-                return (
-                  <button key={k} onClick={() => setKeypad({ kind: "order", service: k })} className="press" aria-label={`Pridať ${s.name}`}
-                    style={{ flex: "1 1 0", width: 0, minWidth: 0, height: 68, borderRadius: 21, background: s.grad, color: INK, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                      border: "1px solid rgba(255,255,255,0.55)", boxShadow: `0 7px 16px ${s.glow}, inset 0 1px 0 rgba(255,255,255,0.60), inset 0 -2px 0 rgba(0,0,0,0.045)` }}>
-                    <Icon name={svcIcon[k]} size={24} />
-                    <span style={{ fontSize: 13, fontWeight: 900, fontFamily: SANS, letterSpacing: "-0.01em" }}>{s.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+      {/* Variant 2 · plávajúci tmavý dock so silným, mäkkým tieňom */}
+      <div aria-hidden="true" style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 138, zIndex: 20, pointerEvents: "none",
+        background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.42) 54%, rgba(248,251,255,0.84) 100%)" }} />
+      <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(18px, env(safe-area-inset-bottom))", zIndex: 21,
+        display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
+        <nav aria-label="Pridať objednávku" style={{ width: "100%", maxWidth: 362, minWidth: 0, pointerEvents: "auto" }}>
+          <div style={{ display: "flex", gap: 9, padding: 10, borderRadius: 32,
+            background: "linear-gradient(152deg, #263649 0%, #142234 36%, #0C1828 100%)",
+            border: "1px solid rgba(143,172,194,0.5)",
+            boxShadow: "0 20px 38px rgba(7,19,34,0.40), 0 7px 15px rgba(7,19,34,0.22), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(0,0,0,0.3)" }}>
+            {ORDER.map((k) => {
+              const s = SERVICES[k];
+              const c = DOCK_PALETTE[k];
+              return (
+                <button key={k} onClick={() => setKeypad({ kind: "order", service: k })} className="press"
+                  aria-label={`Pridať ${s.name}`} style={{ position: "relative", isolation: "isolate", flex: "1 1 0", minWidth: 0,
+                    height: 71, borderRadius: 24, background: c.grad, color: "#09131C",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+                    border: `1.5px solid ${c.edge}`,
+                    boxShadow: `0 0 0 1px rgba(255,255,255,0.10), 0 4px 16px ${c.light}, 0 7px 12px rgba(0,0,0,0.22), inset 0 2px 1px rgba(255,255,255,0.55), inset 0 -2px 3px rgba(0,0,0,0.05)` }}>
+                  <span aria-hidden="true" style={{ pointerEvents: "none", position: "absolute", top: 3, left: 9, right: 9,
+                    height: 24, borderRadius: 18,
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.29), rgba(255,255,255,0))" }} />
+                  <span style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon name={svcIcon[k]} size={24} stroke={2.4} />
+                  </span>
+                  <span style={{ position: "relative", fontSize: 14, lineHeight: 1.05, fontWeight: 900,
+                    fontFamily: SANS, letterSpacing: "-0.015em", textShadow: "0 1px 0 rgba(255,255,255,0.18)" }}>{s.name}</span>
+                </button>
+              );
+            })}
           </div>
-        </div>
+        </nav>
       </div>
 
       {/* keypad */}
