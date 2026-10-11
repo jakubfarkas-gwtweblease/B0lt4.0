@@ -1040,16 +1040,16 @@ const App = () => {
         </div>
       </div>
 
-      {/* Variant 2 · plávajúci tmavý dock so silným, mäkkým tieňom */}
+      {/* Plávajúci biely dock s jemným tieňom */}
       <div aria-hidden="true" style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 126, zIndex: 20, pointerEvents: "none",
         background: "linear-gradient(180deg, rgba(248,251,255,0) 0%, rgba(248,251,255,0.42) 54%, rgba(248,251,255,0.84) 100%)" }} />
       <div style={{ position: "fixed", left: 0, right: 0, bottom: "max(16px, env(safe-area-inset-bottom))", zIndex: 21,
         display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
         <nav aria-label="Pridať objednávku" style={{ width: "100%", maxWidth: 346, minWidth: 0, pointerEvents: "auto" }}>
           <div style={{ display: "flex", gap: 8, padding: 8, borderRadius: 29,
-            background: "linear-gradient(152deg, #263649 0%, #142234 36%, #0C1828 100%)",
-            border: "1px solid rgba(143,172,194,0.36)",
-            boxShadow: "0 16px 30px rgba(7,19,34,0.34), 0 6px 13px rgba(7,19,34,0.18), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.26)" }}>
+            background: "linear-gradient(155deg, #FFFFFF 0%, #F8FAFC 55%, #EDF2F6 100%)",
+            border: "1px solid rgba(170,184,198,0.48)",
+            boxShadow: "0 14px 28px rgba(29,47,65,0.16), 0 4px 10px rgba(29,47,65,0.08), inset 0 1px 0 rgba(255,255,255,0.95)" }}>
             {ORDER.map((k) => {
               const s = SERVICES[k];
               const c = DOCK_PALETTE[k];
@@ -1059,7 +1059,7 @@ const App = () => {
                     height: 64, borderRadius: 21, background: c.grad, color: "#09131C",
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
                     border: `1px solid ${c.edge}`,
-                    boxShadow: `0 0 0 1px rgba(255,255,255,0.08), 0 3px 12px ${c.light}, 0 6px 10px rgba(0,0,0,0.18), inset 0 2px 1px rgba(255,255,255,0.52), inset 0 -2px 3px rgba(0,0,0,0.04)` }}>
+                    boxShadow: `0 0 0 1px rgba(255,255,255,0.08), 0 3px 12px ${c.light}, 0 6px 10px rgba(0,0,0,0.08), inset 0 2px 1px rgba(255,255,255,0.52), inset 0 -2px 3px rgba(0,0,0,0.04)` }}>
                   <span aria-hidden="true" style={{ pointerEvents: "none", position: "absolute", top: 3, left: 8, right: 8,
                     height: 20, borderRadius: 16,
                     background: "linear-gradient(180deg, rgba(255,255,255,0.29), rgba(255,255,255,0))" }} />
